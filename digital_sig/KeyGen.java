@@ -137,10 +137,20 @@ public class KeyGen {
 		keygen.generate();
 		keygen.print();
 		keygen.savePrivateKey("privkey.rsa");
+		keygen.savePublicKey("pubkey.rsa");
 		
-		keygen = new KeyGen();
-		keygen.loadPrivateKey("privkey.rsa");
-		keygen.print();
+		KeyGen privateKey = new KeyGen();
+		privateKey.loadPrivateKey("privkey.rsa");
+		KeyGen publicKey = new KeyGen();
+		publicKey.loadPublicKey("pubkey.rsa");
+		
+		BigInteger notEncryptedInt = new BigInteger("230129347659230857156302986534088723687789834609809430985093489834029380498230498320948320");
+		BigInteger encryptedInt = notEncryptedInt.modPow(privateKey.getD(), privateKey.getN());
+		BigInteger decryptedInt = encryptedInt.modPow(publicKey.getE(), publicKey.getN());
+		
+		System.out.println("Before encryption: " + notEncryptedInt);
+		System.out.println("After encryption:  " + encryptedInt);
+		System.out.println("After decryption:  " + decryptedInt);
 	}
 	
 	

@@ -3,4 +3,5 @@
 
 # except
 !.gitignore
-!**.java
+!*.java
+!*/
