@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
-
 import java.util.Scanner;
 
 public class Main {
@@ -16,9 +15,10 @@ public class Main {
 		"1. Send massage\n" +
 		"2. Receive message\n" +
 		"3. Tamper message\n" +
-		"4. Show keys\n" +
-		"5. Quit\n\n" +
-		"Please enter the task number [1-5]: ";
+		"4. Generate new keys\n" +
+		"5. Show keys\n" +
+		"6. Quit\n\n" +
+		"Please enter the task number [1-6]: ";
 
 
 	public static void main(String[] args){
@@ -31,7 +31,7 @@ public class Main {
 		RSAKey publicKey = keys[1];
 
 
-		while (input != 5){
+		while (input != 6){
 			System.out.println(PROMT);
 			input = scanner.nextInt();
 			scanner.nextLine();
@@ -49,7 +49,13 @@ public class Main {
 			}
 
 			else if (input == 4){
-				showKeys(scanner);
+				keys = changeKeys();
+				privateKey = keys[0];
+				publicKey = keys[1];
+			}
+
+			else if (input == 5){
+				showKeys(privateKey, publicKey);
 			}
 
 		}
@@ -91,10 +97,9 @@ public class Main {
 			file = new File(scanner.nextLine());
 		}while(!file.isFile());
 
+		DigitalSignature.signFile(file.getName(), privateKey);
 		System.out.println();
 		System.out.println(file.getName() + " has been signed!");
-
-		DigitalSignature.signFile(file.getName(), privateKey);
 	}
 
 	public static void receive(Scanner scanner, RSAKey publicKey){
@@ -123,7 +128,7 @@ public class Main {
 			Path path = Paths.get(filepath);
 			try (Stream<String> lines = Files.lines(path)) {
 				lines.forEach(s -> System.out.println(s));
-			} catch (IOException ex) {
+			} catch (Exception e) {
 				System.out.println("An error has occured reading the file!");
 			}
 			System.out.println();
@@ -135,11 +140,33 @@ public class Main {
 	}
 
 	public static void tamper(Scanner scanner){
-
+		ChangeByte changeByte = new ChangeByte(scanner);
+    changeByte.tamper();
 	}
 
-	public static void showKeys(Scanner scanner){
+	public static RSAKey[] changeKeys(){
+		KeyGen keygen = new KeyGen();
+		keygen.generate();
 
+		// save the keys
+		keygen.getPrivateKey().saveToFile("privkey.rsa");
+		keygen.getPublicKey().saveToFile("pubkey.rsa");
+
+		// assign the keys
+		RSAKey privateKey = keygen.getPrivateKey();
+		RSAKey publicKey = keygen.getPublicKey();
+
+		// return the kyes as an array
+		RSAKey[] keys = new RSAKey[2];
+		keys[0] = privateKey;
+		keys[1] = publicKey;
+		return keys;
+	}
+
+	public static void showKeys(RSAKey privateKey, RSAKey publicKey){
+		System.out.println("e: " + publicKey.getExponent());
+		System.out.println("d: " + privateKey.getExponent());
+		System.out.println("n: " + privateKey.getModulus());
 	}
 
 }
