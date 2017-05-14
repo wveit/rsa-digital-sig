@@ -1,7 +1,6 @@
 package digital_sig;
 
 import java.io.EOFException;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -12,19 +11,43 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Scanner;
+
+/*
+ * 			---- How to use DigitalSignature class ----
+ * 
+ * Basics:
+ * 	+ DigitalSignature class provides static methods for:
+ * 		- Creating a digital signature from an existing file
+ * 		- Checking validity of a digital signature
+ * 	+ Requires use of signer's public/private key pair (see RSAKey.java and KeyGen.java for more info about creating
+ * 	  and using keys).
+ * 		- Signer uses their private key to sign.
+ * 		- Receiver uses signer's public key to verify signature
+ * 
+ * How to create a Digital Signature:
+ * 		// Assume you are signing a file named "blah.txt" and that you have your private key 
+ * 		// is in the file "myprivatekey.rsa"
+ * 		RSAKey myPrivateKey = RSAKey.loadFromFile("myprivkey.rsa");
+ * 		DigitalSignature.signFile("blah.txt", myPrivateKey);	// This creates a new file named "blah.txt.signed"
+ * 																// that contains your digital signature.
+ * 
+ * How to verify a Digital Signature:
+ * 		// Assume you are verifying a file named "blah.txt.signed" and that you have the signer's 
+ * 		// public key in a file called "signerpublickey.rsa"
+ * 		RSAKey signerPublicKey = RSAKey.loadFromFile("signerpublickey.rsa");
+ * 		boolean isValid = DigitalSignature.verifySignature("blah.txt.signed", signerPublicKey);
+ * 		
+ */
 
 public class DigitalSignature {
 
 	public static void main(String[] args){
 		
-		KeyGen privateKey = new KeyGen();
-		privateKey.loadPrivateKey("privkey.rsa");
-		signFile("message.txt", privateKey.getD(), privateKey.getN());
+		RSAKey privateKey = RSAKey.loadFromFile("privkey.rsa");
+		signFile("message.txt", privateKey);
 		
-		KeyGen publicKey = new KeyGen();
-		publicKey.loadPublicKey("pubkey.rsa");
-		boolean valid = verifySignature("message.txt.signed", publicKey.getE(), publicKey.getN());
+		RSAKey publicKey = RSAKey.loadFromFile("pubkey.rsa");
+		boolean valid = verifySignature("message.txt.signed", publicKey);
 		if(valid)
 			System.out.println("It's Valid!");
 		else
@@ -33,11 +56,11 @@ public class DigitalSignature {
 	}
 	
 	
-	public static boolean signFile(String filename, BigInteger keyD, BigInteger keyN){
+	public static boolean signFile(String filename, RSAKey privateKey){
 		
 		byte[] messageByteArray = fileToByteArray(filename);
 		if(messageByteArray == null){
-			System.out.println("Error: could not find message file");
+			System.out.println("Error: DigitalSignature.signFile(...) could not find/read file");
 			return false;
 		}
 		
@@ -47,30 +70,37 @@ public class DigitalSignature {
 		byte[] digestArray;
 		
 		try{
-			MessageDigest md5Digestor = MessageDigest.getInstance("MD5");
-			md5Digestor.update(messageByteArray);
-			digestArray = md5Digestor.digest();
+			MessageDigest digestor = MessageDigest.getInstance("MD5");
+			digestor.update(messageByteArray);
+			digestArray = digestor.digest();
 		}
 		catch(NoSuchAlgorithmException e){
-			System.out.println("Error: Could not digest message");
+			System.out.println("Error: DigitalSignature.signFile(...) Problem using MD5 Message Digest");
 			return false;
 		}
 		
 		
 		BigInteger digest = new BigInteger(1, digestArray);
-		System.out.println("Unencrypted Message:  " + digest);
-		BigInteger signedDigest = digest.modPow(keyD, keyN);
+		//System.out.println("Unencrypted Digest Before Signing:  " + digest);
+		BigInteger signedDigest = privateKey.encrypt(digest);
 		
-		writeSignatureFile(filename + ".signed", signedDigest, messageString);
+		if(!writeSignatureFile(filename + ".signed", signedDigest, messageString)){
+			System.out.println("Error: DigitalSignature.signFile(...) Could not write .signed file");
+			return false;
+		}
 		
 		return true;
-		
 	}
 	
 	
 
 	
-	public static boolean verifySignature(String filename, BigInteger keyE, BigInteger keyN){
+	public static boolean verifySignature(String filename, RSAKey publicKey){
+		// !! Attention.. This method works correctly but needs updates !!
+		//		1) close ObjectInputStream after use
+		//		2) fill in exception handling sections
+		
+		
 		// Get BigInteger and byte array from signature file
 		BigInteger signatureBigInt = BigInteger.ONE;
 		ArrayList<Byte> byteArrayList = new ArrayList<>();;
@@ -106,8 +136,8 @@ public class DigitalSignature {
 
 		
 		// Convert BigInteger into unencrypted digest (digest1)
-		BigInteger decryptedDigestBigInt = signatureBigInt.modPow(keyE, keyN);
-		System.out.println("Decrypted Digest:   " + decryptedDigestBigInt);
+		BigInteger decryptedDigestBigInt = publicKey.encrypt(signatureBigInt);
+		//System.out.println("Decrypted Digest:   " + decryptedDigestBigInt);
 		byte[] digest1 = decryptedDigestBigInt.toByteArray();
 		
 		// Convert byte array into unencrypted digest (digest2)
@@ -122,17 +152,17 @@ public class DigitalSignature {
 		}
 		
 		BigInteger unencryptedDigestBigInt2 = new BigInteger(digest2);
-		System.out.println("Unencrypted digest2:   " + unencryptedDigestBigInt2);
+		//System.out.println("Unencrypted digest2:   " + unencryptedDigestBigInt2);
 
 		
 		// Compare digest1 and digest 2
 		if(digest1 == null || digest2 == null || digest1.length != digest2.length)
 			return false;
 		
-		System.out.println("Digest1 length: " + digest1.length + "  Digest2 length: " + digest2.length);
+		//System.out.println("Digest1 length: " + digest1.length + "  Digest2 length: " + digest2.length);
 		boolean valid = true;
 		for(int i = 0; i < digest1.length; i++){
-			System.out.println(digest1[i] + "  " + digest2[i]);
+			//System.out.println(digest1[i] + "  " + digest2[i]);
 			if(digest1[i] != digest2[i]){
 				valid = false;
 			}
@@ -141,7 +171,7 @@ public class DigitalSignature {
 		return valid;
 	}
 	
-	public static boolean writeSignatureFile(String filename, BigInteger signedDigest, String originalMessage){
+	private static boolean writeSignatureFile(String filename, BigInteger signedDigest, String originalMessage){
 		try{
 			FileOutputStream fout = new FileOutputStream(filename);
 			ObjectOutputStream objectOut = new ObjectOutputStream(fout);
@@ -161,7 +191,7 @@ public class DigitalSignature {
 		return true;
 	}
 	
-	public static byte[] fileToByteArray(String filename){
+	private static byte[] fileToByteArray(String filename){
 		ArrayList<Byte> byteArrayList = new ArrayList<>();
 		
 		try{
