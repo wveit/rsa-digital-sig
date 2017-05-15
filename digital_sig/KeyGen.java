@@ -4,27 +4,37 @@ import java.math.BigInteger;
 import java.util.Random;
 import java.security.SecureRandom;
 
-/*
- * 				--- How to use KeyGen class ---
+/*	========================================================================================================
+ * 								---- How to use KeyGen class ----
+ * 	========================================================================================================
+ * 				
  * 	Basics:
- * 	+ KeyGen objects are used to create public/private key pairs for RSA public key encryption.
- * 	+ For information about how to use RSAKey objects, see instructions in RSAKey.java
+ * 		+ KeyGen objects are used to create public/private key pairs for RSA public key encryption.
+ * 
+ * 		+ For information about how to use RSAKey objects, see instructions in RSAKey.java
+ * 
  * 
  * 	How to create a Key Generator:
  * 		KeyGen keyGen = new KeyGen();
  * 
+ * 
  * 	How to generate a new public/private key pair:
  * 		keyGen.generate();
  * 
- * 	To get the generated keys from the KeyGen object, use these methods:
+ * 
+ * 	How to get the generated keys from a KeyGen object after calling generate() method:
  * 		RSAKey publicKey = keyGen.getPublicKey();
  * 		RSAKey privateKey = keyGen.getPrivateKey();
  * 
- * 	A KeyGen object always remembers the last pair of keys that it generated.
+ * 
+ * 	A KeyGen object generate() method is called, it will remember the generated key pair until generate() is called
+ * 		again.
+ * 
  * 
  * 	A KeyGen object also remembers the data associated with creating those keys (p, q, n, totient, e, d). To
  * 	print out this data:
  * 		keyGen.print();
+ * 
  * 
  * 	See the main() method for more examples of how to use a key generator and the keys it generates.
  * 

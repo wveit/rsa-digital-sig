@@ -12,30 +12,52 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
-/*
- * 			---- How to use DigitalSignature class ----
+/*	========================================================================================================
+ * 								---- How to use DigitalSignature class ----
+ * 	========================================================================================================
  * 
- * Basics:
- * 	+ DigitalSignature class provides static methods for:
- * 		- Creating a digital signature from an existing file
- * 		- Checking validity of a digital signature
- * 	+ Requires use of signer's public/private key pair (see RSAKey.java and KeyGen.java for more info about creating
- * 	  and using keys).
- * 		- Signer uses their private key to sign.
- * 		- Receiver uses signer's public key to verify signature
+ *	Basics:
+ *		+ Let's say Alice wants to send Bob a message in a way that Bob can be sure it is from her and that it has not 
+ * 			been tampered with. She can do this by creating a digital signature for the message using her private key,
+ * 			and then sending the digital signature and message together to Bob. 
  * 
- * How to create a Digital Signature:
- * 		// Assume you are signing a file named "blah.txt" and that you have your private key 
- * 		// is in the file "myprivatekey.rsa"
- * 		RSAKey myPrivateKey = RSAKey.loadFromFile("myprivkey.rsa");
- * 		DigitalSignature.signFile("blah.txt", myPrivateKey);	// This creates a new file named "blah.txt.signed"
- * 																// that contains your digital signature.
+ *  	+ When Bob receives the digital signature and message, he can use the digital signature and Alice's public key
+ *  		to verify that the message really did come from Alice, and that the message has not been tampered with.
+ *  
+ *  	+ In the above exchange, Alice would be called the Sender, and Bob would be called the Receiver
+ *  
+ *  	+ The DigitalSignature class provides two static methods that allow a sender and receiver to exchange a message
+ *  		like Alice and Bob just did.
+ *  
+ *  
+ *  How a Sender can send a message and digital signature to the Receiver:
+ *  	// Assume I am the sender (Alice).
+ *  	// Assume my message is in a file called "blah.txt"
+ *  	// Assume my private key is in a file called "aliceprivatekey.rsa"
+ *  
+ *  	RSAKey alicePrivateKey = RSAKey.loadFromFile("aliceprivatekey.rsa");
+ *  	boolean success = DigitalSignature.signFile("blah.txt", alicePrivateKey);
+ *  
+ *  	// If success == true, we know that the signFile() method just created a new file named "blah.txt.signed"
+ *  	//	that contains a digital signature and the original message.
+ *  	// "blah.txt.signed" can now be sent to the Receiver (Bob)
  * 
- * How to verify a Digital Signature:
- * 		// Assume you are verifying a file named "blah.txt.signed" and that you have the signer's 
- * 		// public key in a file called "signerpublickey.rsa"
- * 		RSAKey signerPublicKey = RSAKey.loadFromFile("signerpublickey.rsa");
- * 		boolean isValid = DigitalSignature.verifySignature("blah.txt.signed", signerPublicKey);
+ * 
+ * 	How a Receiver of a .signed file can verify that the digital signature and message match:
+ * 		// Assume I am the receiver (Bob)
+ * 		// Assume that the sender (Alice) sent me the file "blah.txt.signed" which I know contains a digital
+ * 		//		signature followed by a message
+ * 		// Assume that I have the Sender's public key in the file "alicepublickey.rsa"
+ * 
+ * 		RSAKey alicePublicKey = RSAKey.loadFromFile("alicepublickey.rsa");
+ * 		boolean success = DigitalSignature.verifySignature("blah.txt.signed", alicePublicKey);
+ * 
+ * 		// If success == true, we know that:
+ * 		// 		* The file "blah.txt.signed" does in fact contain a digital signature followed by a message
+ * 		//		* The digital signature was created with the Sender's private key, for the contained message
+ * 		//		* The message and digital signature have not been tampered with
+ * 
+ * 	
  * 		
  */
 

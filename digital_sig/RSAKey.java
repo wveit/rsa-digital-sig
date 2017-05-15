@@ -8,26 +8,38 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 
-/*
- * 					--- How to use RSAKey class ---
+/*	========================================================================================================
+ * 								---- How to use RSAKey class ----
+ * 	========================================================================================================
+ * 					
  * 
- * Basics:
- * 	+ An RSAKey is used to encrypt or decrypt a message.
- * 		- A message is in the form of a BigInteger object of less than 1024 bits
- * 	+ RSA keys come in pairs: public key and private key.
- * 	+ Public/private key pairs are created together, using a KeyGen object.
- * 	+ If the private key encrypts a message, only its associated public key can decrypt it.
- * 	+ If the public key encrypts a message, only its associated private key can decrypt it.
- * 	+ Encryption and Decryption are basically the same operation (just using a different key). Therefore
- * 		the encrypt() method is used for both encryption and decryption.
+ *	Basics:
+ * 		+ An RSAKey is used to encrypt or decrypt a message.
+ * 			- A message is in the form of a BigInteger object of less than 1024 bits
  * 
- * How to get a key:
- * 	+ Keys must be created in pairs (public key and private key) to be useful. See the KeyGen class for how to 
- * 		create a key pair.
- * 	+ RSAKey constructor can also be used to create a key, but this is not usually the desired way to create it, since
- * 		to be useful, keys need to be created as a pair.
+ * 		+ RSA keys come in pairs: public key and private key.
  * 
- * How to encrypt/decrypt:
+ * 		+ Public/private key pairs are created together, using a KeyGen object.
+ * 
+ * 		+ If the private key encrypts a message, only its associated public key can decrypt it.
+ * 
+ * 		+ If the public key encrypts a message, only its associated private key can decrypt it.
+ * 
+ * 		+ Encryption and Decryption are basically the same operation (just using a different key). Therefore
+ * 			the encrypt() method is used for both encryption and decryption.
+ * 
+ * 
+ * 	How to get an RSA key object:
+ * 		+ Keys must be created in pairs (public key and private key) to be useful. See the KeyGen class for how to 
+ * 			create a key pair.
+ * 
+ * 		+ You can load a saved RSAKey from a file (see below).
+ * 
+ * 		+ The RSAKey constructor can also be used directly to create a key, but this is not usually the desired 
+ * 			way to create it, since to be useful, keys need to be created as a pair.
+ * 
+ * 
+ * 	How to encrypt/decrypt:
  * 		// Using publicKey to encrypt and privateKey to decrypt
  * 		BigInteger message = new BigInteger("40583298723094832049830");
  * 		BigInteger encryptedMessage = publicKey.encrypt(message);
@@ -45,11 +57,13 @@ import java.math.BigInteger;
  * 																			// message and decryptedMessage should be
  * 																			// the same.
  * 
- * Save a key (or key pair) to file(s):
+ * 
+ * 	How to save a key (or key pair) to file(s):
  * 		boolean success1 = publicKey.saveToFile("mypublickey.rsa");
  * 		boolean success2 = privateKey.saveToFile("myprivatekey.rsa");	// You cannot save both keys to the same file
  * 
- * Load a key from file using the static loadFromFile() method:
+ * 
+ * 	How to load a key from file using the static loadFromFile() method:
  * 		RSAKey myPrivateKey = RSAKey.loadFromFile("myprivatekey.rsa");
  * 		RSAKey myPublicKey = RSAKey.loadFromFile("mypublickey.rsa");	// Be careful, this method will return null
  * 																		// if it was not successful (missing file,
@@ -57,7 +71,8 @@ import java.math.BigInteger;
  * 																		// be safe, make sure to check if null was
  * 																		// returned.
  * 
- * See the KeyGen.java main() method for more examples on how to use the RSAKey class.
+ * 
+ * 	See the KeyGen.java main() method for more examples on how to use the RSAKey class.
  * 
  */
 
