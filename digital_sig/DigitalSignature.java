@@ -76,6 +76,15 @@ public class DigitalSignature {
 		else
 			System.out.println("It's not valid :( ");
 
+		// See if we can extract the message
+		byte[] messageByteArray = DigitalSignature.extractMessageFromSignedFile("message.txt.signed");
+		if(messageByteArray == null){
+			System.out.println("Unable to extract message");
+		}
+		else{
+			String message = new String(messageByteArray);
+			System.out.println("Message from signed file:\n" + message);
+		}
 	}
 
 
@@ -116,6 +125,41 @@ public class DigitalSignature {
 	}
 
 
+	public static byte[] extractMessageFromSignedFile(String filename){
+		BigInteger signatureBigInt = BigInteger.ONE;
+		ArrayList<Byte> byteArrayList = new ArrayList<>();
+		byte[] messageByteArray = null;
+
+		try{
+			FileInputStream fin = new FileInputStream(filename);
+			ObjectInputStream objectIn = new ObjectInputStream(fin);
+
+			signatureBigInt = (BigInteger)objectIn.readObject();
+
+			while(true){
+				byteArrayList.add(objectIn.readByte());
+			}
+
+		}
+		catch(EOFException e){
+			// This exception is expected when finished reading file
+			messageByteArray = new byte[byteArrayList.size()];
+			for(int i = 0; i < byteArrayList.size(); i++){
+				messageByteArray[i] = byteArrayList.get(i);
+			}
+		}
+		catch(FileNotFoundException e){
+
+		}
+		catch(IOException e){
+
+		}
+		catch(ClassNotFoundException e){
+
+		}
+		
+		return messageByteArray;
+	}
 
 
 	public static boolean verifySignature(String filename, RSAKey publicKey){
