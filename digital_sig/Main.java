@@ -113,17 +113,15 @@ public class Main {
 	}
 
 	public static void receive(Scanner scanner, RSAKey publicKey){
-		File message;
 		File signedMessage;
 		String filepath = "";
 
 		do{
-			System.out.println("Please enter a file path (do not enter the .signedFile):");
+			System.out.println("Please enter the name of a file to \"receive\" (should end with .signed):");
 			filepath = scanner.nextLine();
-			message = new File(filepath);
-		}while(!message.isFile());
+			signedMessage = new File(filepath);
+		}while(!signedMessage.isFile());
 
-		signedMessage = new File(filepath + ".signed");
 
 		if(!signedMessage.isFile()){
 			System.out.println("The message has not been signed!");
@@ -135,13 +133,15 @@ public class Main {
 			System.out.println("It's Valid! Here's the message: ");
 			System.out.println();
 
-			Path path = Paths.get(filepath);
-			try (Stream<String> lines = Files.lines(path)) {
-				lines.forEach(s -> System.out.println(s));
-			} catch (Exception e) {
-				System.out.println("An error has occured reading the file!");
+			byte[] messageBytes = DigitalSignature.extractMessageFromSignedFile(signedMessage.getName());
+			if(messageBytes == null){
+				System.out.println("Could not extract message");
 			}
-			System.out.println();
+			else{
+				String messageString = new String(messageBytes);
+				System.out.println(messageString);
+				System.out.println();
+			}
 
 		}
 		else{
