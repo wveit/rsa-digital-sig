@@ -192,13 +192,13 @@ public class DigitalSignature {
 			}
 		}
 		catch(FileNotFoundException e){
-
+			return false;
 		}
 		catch(IOException e){
-
+			return false;
 		}
 		catch(ClassNotFoundException e){
-
+			return false;
 		}
 
 
