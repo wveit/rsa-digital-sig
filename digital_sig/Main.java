@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class Main {
 
-	public static final String PROMT =
+	public static final String PROMPT =
 		"Main Menu\n" +
 		"1. Send massage\n" +
 		"2. Receive message\n" +
@@ -25,14 +25,13 @@ public class Main {
 		Scanner scanner = new Scanner(System.in);
 		int input = 0;
 
-		RSAKey[] keys = initKeys();;
+		RSAKey[] keys = initKeys();
 
 		RSAKey privateKey = keys[0];
 		RSAKey publicKey = keys[1];
 
-
 		while (input != 6){
-			System.out.println(PROMT);
+			System.out.println(PROMPT);
 			input = scanner.nextInt();
 			scanner.nextLine();
 
@@ -91,15 +90,26 @@ public class Main {
 
 
 	public static void send(Scanner scanner, RSAKey privateKey){
-		File file;
-		do{
-			System.out.println("Please enter a file path:");
+		
+		System.out.println("Please enter a file to be signed:");
+		File file = new File(scanner.nextLine());
+		while(!file.isFile()){
+			System.out.println("That file did not exist. Please enter a file to be signed:");
 			file = new File(scanner.nextLine());
-		}while(!file.isFile());
+		}
 
-		DigitalSignature.signFile(file.getName(), privateKey);
-		System.out.println();
-		System.out.println(file.getName() + " has been signed!");
+		boolean success = DigitalSignature.signFile(file.getName(), privateKey);
+		
+		if(success){
+			System.out.println();
+			System.out.println(file.getName() + " has been signed. Created file: " + file.getName() + ".signed");
+			System.out.println();
+		}
+		else{
+			System.out.println();
+			System.out.println("Error: could not sign " + file.getName());
+			System.out.println();
+		}
 	}
 
 	public static void receive(Scanner scanner, RSAKey publicKey){
@@ -156,7 +166,7 @@ public class Main {
 		RSAKey privateKey = keygen.getPrivateKey();
 		RSAKey publicKey = keygen.getPublicKey();
 
-		// return the kyes as an array
+		// return the keys as an array
 		RSAKey[] keys = new RSAKey[2];
 		keys[0] = privateKey;
 		keys[1] = publicKey;
