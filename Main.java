@@ -1,11 +1,8 @@
-package digital_sig;
+
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.stream.Stream;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class Main {
@@ -17,8 +14,9 @@ public class Main {
 		"3. Tamper message\n" +
 		"4. Generate new keys\n" +
 		"5. Show keys\n" +
-		"6. Quit\n\n" +
-		"Please enter the task number [1-6]: ";
+		"6. Create test.txt\n" +
+		"7. Quit\n\n" +
+		"Please enter the task number [1-7]: ";
 
 
 	public static void main(String[] args){
@@ -30,7 +28,7 @@ public class Main {
 		RSAKey privateKey = keys[0];
 		RSAKey publicKey = keys[1];
 
-		while (input != 6){
+		while (input != 7){
 			System.out.println(PROMPT);
 			input = scanner.nextInt();
 			scanner.nextLine();
@@ -55,6 +53,10 @@ public class Main {
 
 			else if (input == 5){
 				showKeys(privateKey, publicKey);
+			}
+			
+			else if( input == 6){
+				createMessageFile();
 			}
 
 		}
@@ -177,6 +179,26 @@ public class Main {
 		System.out.println("e: " + publicKey.getExponent());
 		System.out.println("d: " + privateKey.getExponent());
 		System.out.println("n: " + privateKey.getModulus());
+	}
+	
+	public static void createMessageFile(){
+		String message = 
+				  "When a Gamertag comes up as violating our policies for online behavior, \n"
+				+ "the person who owns that Gamertag is punished by being banned from the \n"
+				+ "service. Keep in mind, this is not just a ban on a particular game. This \n"
+				+ "is a ban on the Xbox Live service as a whole, so you will not be able to \n"
+				+ "go online at all during your ban \n";
+		
+		try{
+			File file = new File("test.txt");
+			PrintWriter pw = new PrintWriter(file);
+			pw.print(message);
+			System.out.println("Created file:" + file.getAbsolutePath());
+			pw.close();
+		}
+		catch(FileNotFoundException e){
+			
+		}
 	}
 
 }

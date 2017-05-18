@@ -1,4 +1,4 @@
-package digital_sig;
+
 
 import java.math.BigInteger;
 import java.util.Random;
@@ -77,14 +77,11 @@ public class KeyGen {
 	public void print(){
 		System.out.println();
 		System.out.println("============================================================");
-		System.out.println("  KeyGen contents");
+		System.out.println("  Generated Key Pair");
 		System.out.println("------------------------------------------------------------");
-		System.out.println("p:  \t\t" + p);
-		System.out.println("q:  \t\t" + q);
-		System.out.println("n:  \t\t" + n);
-		System.out.println("totient:  \t" + totient);
-		System.out.println("e:  \t\t" + e);
-		System.out.println("d:  \t\t" + d);
+		System.out.println("e: " + e);
+		System.out.println("\nd: " + d);
+		System.out.println("\nn: " + n);
 		System.out.println("============================================================");
 		System.out.println();
 	}
@@ -106,15 +103,5 @@ public class KeyGen {
 		keygen.getPrivateKey().saveToFile("privkey.rsa");
 		keygen.getPublicKey().saveToFile("pubkey.rsa");
 
-		RSAKey privateKey = RSAKey.loadFromFile("privkey.rsa");
-		RSAKey publicKey = RSAKey.loadFromFile("pubkey.rsa");
-
-		BigInteger originalMessage = new BigInteger("23012934765923085715630298653408872368778");
-		BigInteger encryptedMessage = privateKey.encrypt(originalMessage);
-		BigInteger decryptedMessage = publicKey.encrypt(encryptedMessage);
-
-		System.out.println("Original Message:      " + originalMessage);
-		System.out.println("Encrypted Message:     " + encryptedMessage);
-		System.out.println("Decrypted Message:     " + decryptedMessage);
 	}
 }
